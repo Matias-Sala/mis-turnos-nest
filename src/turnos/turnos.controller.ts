@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { TurnosService } from './turnos.service';
 import { TurnoAsignado } from './models';
 
@@ -9,6 +9,16 @@ export class TurnosController {
 
   @Get('asignados')
   getTurnosAsignados(): Promise<TurnoAsignado[]> {
-    return this.turnosSvc.getTurnosAsignados(1);
+    return this.turnosSvc.getTurnosAsignados(3);
+  }
+
+  @Get('servicios')
+  getServicios(): Promise<TurnoAsignado[]> {
+    return this.turnosSvc.getServicios();
+  }
+
+  @Get('doctores/:id/servicios')
+  getServiciosByDoctor(@Param() params): Promise<TurnoAsignado[]> {
+    return this.turnosSvc.getServiciosByDoctor(params.id);
   }
 }

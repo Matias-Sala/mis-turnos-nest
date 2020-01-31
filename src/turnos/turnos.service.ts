@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { QueryTypes } from 'sequelize';
-import { TurnoAsignado } from './models';
+import { TurnoAsignado, Servicio, Doctor } from './models';
 import { sequelize } from 'src/database/sequelize';
 
 @Injectable()
@@ -20,8 +20,80 @@ export class TurnosService {
 
     let result: TurnoAsignado[] = [];
 
-    await sequelize.query<TurnoAsignado>(query, { replacements: { usuarioId: 3 }, type: QueryTypes.SELECT })
+    await sequelize.query<TurnoAsignado>(query, { replacements: { usuarioId }, type: QueryTypes.SELECT })
       .then((users) => result = users);
+
+    return result;
+  }
+
+  async getServicios(): Promise<Servicio[]> {
+
+    const query = `Select nro_servicio as Id, servicio as Nombre From tb_Servicios
+                   Where activo = 'true'`;
+
+    let result: Servicio[] = [];
+
+    await sequelize.query<Servicio>(query, { type: QueryTypes.SELECT })
+      .then((servicios) => result = servicios);
+
+    return result;
+  }
+
+  async getServiciosByDoctor(id: number): Promise<Servicio[]> {
+
+    const query = `select DocServ.nro_servicio as Id, Serv.servicio as Nombre
+                  from  tb_Doctores_Servicios DocServ
+                  inner join tb_Servicios Serv on DocServ.nro_servicio = Serv.nro_servicio
+                  inner join tb_Doctores Doc on DocServ.nro_doctor = Doc.nro_doctor
+                  where Doc.activo = 'true' and Doc.nro_doctor =  :id`;
+
+    let result: Servicio[] = [];
+
+    await sequelize.query<Servicio>(query, { replacements: { id }, type: QueryTypes.SELECT })
+      .then((servicios) => result = servicios);
+
+    return result;
+  }
+
+  async getDoctores(): Promise<Doctor[]> {
+
+    const query = `select nro_doctor as Id, doctor as Nombre from tb_Doctores
+                   where activo = 'true'`;
+
+    let result: Doctor[] = [];
+
+    await sequelize.query<Doctor>(query, { type: QueryTypes.SELECT })
+      .then((doctores) => result = doctores);
+
+    return result;
+  }
+
+  async getDoctoresByServicio(id: number): Promise<Doctor[]> {
+
+    const query = `select DocServ.nro_doctor as Id, doc.doctor as Nombre from  [tb_Doctores_Servicios] DocServ
+                  inner join [tb_Servicios] Serv on DocServ.[nro_servicio] = Serv.[nro_servicio]
+                  inner join [tb_Doctores] Doc on DocServ.[nro_doctor] = Doc.[nro_doctor]
+                  where Serv.activo = 'true' /*and Serv.web = 'true' este campo aun no esta */
+                  and Doc.activo = 'true' and Serv.nro_servicio = :id`;
+
+    let result: Doctor[] = [];
+
+    await sequelize.query<Doctor>(query, { replacements: { id }, type: QueryTypes.SELECT })
+      .then((doctores) => result = doctores);
+
+    return result;
+  }
+
+  async verificarTurnoDisponible(servicioId: number): Promise<boolean> {
+
+    const query = `Select *
+                   From tb_Turnos
+                   Where orden_prestacion = '0' And fecha > getdate()-1 and nro_servicio = :servicioId `;
+
+    let result = false;
+
+    await sequelize.query(query, { replacements: { servicioId }, type: QueryTypes.SELECT })
+      .then((rows) => result = rows.length > 0);
 
     return result;
   }
