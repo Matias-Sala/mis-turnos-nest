@@ -1,4 +1,5 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Req } from '@nestjs/common';
+import { Request } from 'express';
 import { TurnosService } from './turnos.service';
 import { TurnoAsignado } from './models';
 
@@ -8,7 +9,10 @@ export class TurnosController {
   constructor(private turnosSvc: TurnosService) { }
 
   @Get('asignados')
-  getTurnosAsignados(): Promise<TurnoAsignado[]> {
+  getTurnosAsignados(@Req() request: Request): Promise<TurnoAsignado[]> {
+
+    const mail = request.firebaseUser.email;
+
     return this.turnosSvc.getTurnosAsignados(3);
   }
 
