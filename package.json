@@ -11,6 +11,7 @@
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "prestart:prod": "rimraf dist && npm run build",
     "start": "nest start ts-node/register index.ts",
     "start:dev": "nest start --watch ts-node/register index.ts",
     "start:debug": "nest start --debug --watch --config nodemon-debug.json",
