@@ -9,10 +9,11 @@ import { FirebaseAuthMiddleware } from './firebase';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule implements NestModule {
+export class AppModule {}
+// export class AppModule implements NestModule {
 
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(FirebaseAuthMiddleware).forRoutes({ path: '*', method: RequestMethod.ALL });
-  }
+//   configure(consumer: MiddlewareConsumer) {
+//     consumer.apply(FirebaseAuthMiddleware).forRoutes({ path: '*', method: RequestMethod.ALL });
+//   }
 
-}
+// }
