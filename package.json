@@ -1,6 +1,9 @@
 {
   "name": "mis-turnos-nest",
   "version": "0.0.1",
+  "engines": {
+    "node": "12.13.1"
+  },
   "description": "",
   "author": "",
   "license": "MIT",
