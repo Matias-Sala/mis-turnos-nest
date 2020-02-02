@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { QueryTypes } from 'sequelize';
-import { TurnoAsignado, Servicio, Doctor } from './models';
+import { TurnoAsignado, Servicio, Doctor, Paciente, PacienteParameters } from './models';
 import { sequelize } from 'src/database/sequelize';
 
 @Injectable()
@@ -8,8 +8,9 @@ export class TurnosService {
 
   async getTurnosAsignados(usuarioId: number): Promise<TurnoAsignado[]> {
 
-    const query = `select T.Nro_Turno  as turnoId, T.Orden_Prestacion , T.Fecha ,T.Hora , T.Nro_Servicio as servicioId , S.Servicio as servicioNombre, T.Nro_Doctor as doctorId , D.Doctor as doctorNombre,
-    T.Nro_Paciente as pacienteId , P.Paciente as pacienteNombre , T.Observaciones
+    const query = `select T.Nro_Turno as turnoId, T.Orden_Prestacion , T.Fecha As fecha,T.Hora As hora, T.Nro_Servicio as servicioId ,
+        S.Servicio as servicioNombre, T.Nro_Doctor as doctorId , D.Doctor as doctorNombre,
+        T.Nro_Paciente as pacienteId , P.Paciente as pacienteNombre , T.Observaciones As observaciones
       from tb_Turnos T inner join tb_Servicios S on T.nro_servicio = S.nro_servicio
       inner join tb_Doctores D on T.nro_doctor  = D.nro_doctor
       inner join tb_Pacientes P on T.nro_paciente = P.nro_paciente
@@ -94,6 +95,25 @@ export class TurnosService {
 
     await sequelize.query(query, { replacements: { servicioId }, type: QueryTypes.SELECT })
       .then((rows) => result = rows.length > 0);
+
+    return result;
+  }
+
+  async getPaciente({ dni = '', email = '' }): Promise<Paciente> {
+
+    const query = `Select  pte.nro_paciente as id, pte.paciente as nombre, isnull(pweb.nro_documento, '') as dni
+                  From tb_Pacientes pte
+                  Left Join tb_Pacientes_Web pweb On pte.nro_documento = pweb.nro_documento
+                  where (pweb.email =  :email or :email = '')
+                      And (pte.nro_documento = :dni or :dni = '')`;
+
+    let result: Paciente;
+
+    await sequelize.query<Paciente>(query, {
+      replacements: { email, dni },
+      type: QueryTypes.SELECT,
+    })
+      .then((pacientes) => result = pacientes[0]);
 
     return result;
   }

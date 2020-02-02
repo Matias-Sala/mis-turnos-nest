@@ -5,7 +5,8 @@ export const sequelize = new Sequelize({
   dialectOptions: {
     instanceName: 'MSSQLSERVER',
   },
-  host: '192.168.1.109',
+  host: '190.173.127.131',
+  port: 1433,
   username: 'matias',
   password: 'Ms123456',
   database: 'MisTurnos',
