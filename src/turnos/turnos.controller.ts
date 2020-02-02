@@ -8,6 +8,11 @@ export class TurnosController {
 
   constructor(private turnosSvc: TurnosService) { }
 
+  @Get('pacientess')
+  getPacientes(@Query() query): Paciente {
+    return new Paciente(1);
+  }
+
   @Get('pacientes')
   getPaciente(@Query() query): Promise<Paciente> {
     return this.turnosSvc.getPaciente({ email: query.email });
