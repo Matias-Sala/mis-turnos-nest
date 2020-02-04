@@ -6,7 +6,6 @@ export const sequelize = new Sequelize({
     instanceName: 'MSSQLSERVER',
   },
   host: '190.173.127.131',
-  port: 1433,
   username: 'matias',
   password: 'Ms123456',
   database: 'MisTurnos',
