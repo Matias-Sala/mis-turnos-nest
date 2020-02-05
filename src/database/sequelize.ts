@@ -4,6 +4,7 @@ export const sequelize = new Sequelize({
   dialect: 'mssql',
   dialectOptions: {
     instanceName: 'MSSQLSERVER',
+    connectTimeout: 60000,
   },
   host: '190.173.127.131',
   username: 'matias',
