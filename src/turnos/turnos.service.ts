@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { QueryTypes } from 'sequelize';
-import { TurnoAsignado, Servicio, Doctor, Paciente, PacienteParameters } from './models';
+import { TurnoAsignado, Servicio, Doctor, Paciente, PacienteParameters, TurnoDisponible } from './models';
 import { sequelize } from 'src/database/sequelize';
 
 @Injectable()
@@ -99,6 +99,18 @@ export class TurnosService {
     return result;
   }
 
+  async verificarRelacionDocumento(numero: number): Promise<boolean> {
+
+    const query = 'Select count(*) From tb_Pacientes_Web Where nro_documento = :numero';
+
+    let result = false;
+
+    await sequelize.query(query, { replacements: { numero }, type: QueryTypes.SELECT })
+      .then((rows) => result = rows.length > 0);
+
+    return result;
+  }
+
   async getPaciente({ dni = '', email = '' }): Promise<Paciente> {
 
     const query = `Select  pte.nro_paciente as id, pte.paciente as nombre, isnull(pweb.nro_documento, '') as dni
@@ -114,6 +126,44 @@ export class TurnosService {
       type: QueryTypes.SELECT,
     })
       .then((pacientes) => result = pacientes[0]);
+
+    return result;
+  }
+
+  async getTurnoDisponibleByServicioDoctor(doctorId: number, servicioId: number): Promise<TurnoDisponible[]> {
+    const query = `select T.Nro_Turno as id, cast(T.fecha As date) As fecha, cast(cast(T.hora As Time) As varchar(5)) As hora, D.doctor
+                  from tb_Turnos T
+                  inner join tb_Servicios S on T.nro_servicio = S.nro_servicio
+                  inner join tb_Doctores D on T.nro_doctor  = D.nro_doctor
+                  where  T.nro_paciente = 0
+                      and T.orden_prestacion = 0
+                      and T.fecha >= cast(getdate() As date)
+                      and T.hora >= getdate()
+                      and t.nro_doctor = :doctorId and t.nro_servicio = :servicioId`;
+
+    let result: TurnoDisponible[] = [];
+
+    await sequelize.query<TurnoDisponible>(query, { replacements: { doctorId, servicioId }, type: QueryTypes.SELECT })
+      .then((users) => result = users);
+
+    return result;
+  }
+
+  async getTurnoDisponibleByServicio(servicioId: number): Promise<TurnoDisponible[]> {
+    const query = `select T.Nro_Turno as id, cast(T.fecha As date) As fecha, cast(cast(T.hora As Time) As varchar(5)) As hora, D.doctor
+                  from tb_Turnos T
+                  inner join tb_Servicios S on T.nro_servicio = S.nro_servicio
+                  inner join tb_Doctores D on T.nro_doctor  = D.nro_doctor
+                  where  T.nro_paciente = 0
+                      and T.orden_prestacion = 0
+                      and T.fecha >= cast(getdate() As date)
+                      and T.hora >= getdate()
+                      and t.nro_servicio = :servicioId`;
+
+    let result: TurnoDisponible[] = [];
+
+    await sequelize.query<TurnoDisponible>(query, { replacements: { servicioId }, type: QueryTypes.SELECT })
+      .then((users) => result = users);
 
     return result;
   }

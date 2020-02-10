@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Req, Query } from '@nestjs/common';
 import { Request } from 'express';
 import { TurnosService } from './turnos.service';
-import { TurnoAsignado, Paciente, Doctor } from './models';
+import { TurnoAsignado, Paciente, Doctor, TurnoDisponible } from './models';
 
 @Controller('turnos')
 export class TurnosController {
@@ -29,6 +29,18 @@ export class TurnosController {
       });
 
     return turnos;
+  }
+
+  @Get('disponibles/servicios/:servicioId/doctores/:doctorId')
+  getTurnoDisponibleByServicioDoctor(@Param() params): Promise<TurnoDisponible[]> {
+
+    return this.turnosSvc.getTurnoDisponibleByServicioDoctor(params.doctorId, params.servicioId);
+  }
+
+  @Get('disponibles/servicios/:servicioId')
+  getTurnoDisponibleByServicio(@Param() params): Promise<TurnoDisponible[]> {
+
+    return this.turnosSvc.getTurnoDisponibleByServicio(params.servicioId);
   }
 
   @Get('servicios')
